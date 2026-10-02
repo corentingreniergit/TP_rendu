@@ -1,0 +1,68 @@
+FROM logs-web-default
+| STATS n = COUNT(*) BY http.response.status_code
+| SORT n DESC
+
+FROM logs-web-default
+| STATS n = COUNT(*) BY http.request.method
+
+FROM logs-web-default
+| STATS n = COUNT(*) BY jour = BUCKET(@timestamp, 1 day)
+
+FROM logs-web-default
+| WHERE http.response.status_code >= 500
+| STATS erreurs = COUNT(*) BY heure = BUCKET(@timestamp, 1 hour)
+| SORT heure
+
+FROM logs-web-default
+| WHERE http.response.status_code >= 500
+| STATS erreurs = COUNT(*) BY heure = BUCKET(@timestamp, 5 minutes)
+| SORT heure
+
+FROM logs-web-default
+| WHERE http.response.status_code >= 500
+| STATS erreurs = COUNT(*) BY url.original
+| SORT erreurs
+
+FROM logs-web-default
+| WHERE http.response.status_code >= 500
+| STATS erreurs = COUNT(*)
+
+FROM logs-web-default
+| WHERE http.response.status_code == 404 | STATS n = COUNT(*) BY source.address | SORT n DESC | LIMIT 5
+
+FROM logs-web-default
+| WHERE source.address == "203.0.113.66"
+| STATS MIN(@timestamp), MAX(@timestamp), COUNT(*) BY heure = BUCKET(@timestamp, 1 minutes)
+
+FROM logs-web-default
+| WHERE source.address == "203.0.113.66"
+| STATS n = COUNT(*) BY url.original
+
+FROM logs-web-default
+| WHERE source.address == "203.0.113.66"
+| STATS n = COUNT(*) BY `user_agent`.original
+
+FROM logs-web-default
+| STATS n = COUNT(*) BY `user_agent`.original
+
+FROM logs-web-default
+| WHERE http.request.method == "GET" AND http.response.status_code == 200 AND labels.offre_id IS NOT NULL
+| STATS vues = COUNT(*) BY labels.offre_id
+| SORT vues DESC
+| LIMIT 10
+
+GET offres/_search
+{
+  "size": 10,
+  "_source": ["titre", "ville", "contrat"],
+  "query": { "ids": { "values": ["OFF-04296", "OFF-04033", "OFF-03126", "OFF-04901", "OFF-03532", "OFF-04295", "OFF-02176", "OFF-04271", "OFF-00544", "OFF-01447"] } }
+}
+
+FROM logs-web-default
+| STATS n = COUNT(*) BY user_agent.os.name
+| SORT n DESC
+
+FROM logs-web-default
+| STATS n = COUNT(*) BY user_agent.name
+| SORT n DESC
+| LIMIT 3

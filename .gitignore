@@ -1,6 +1,7 @@
 # Fichiers parasites à ne jamais versionner : artefacts d'OS, d'éditeurs et
 # secrets locaux. Rien ici ne concerne le contenu du cours lui-même.
 
+data\access.log
 # --- macOS ---
 .DS_Store
 .DS_Store?
